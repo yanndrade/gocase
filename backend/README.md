@@ -163,19 +163,19 @@ O diretório `src/schemas` contém os esquemas Pydantic para validação e seria
 
 1. Instale o `uv` para poder instalar as dependências do projeto
 
-   ```shell
+   ```bash
    pipx install uv
    ```
 
    ou
 
-   ```shell
+   ```bash
    pip install uv
    ```
 
 2. Simplesmente use
-
-```shell
+                  
+```bash
 uv run task run
 ```
 
