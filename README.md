@@ -2,7 +2,6 @@
 
 Esse é um projeto full-stack feito com um frontend em React+Vite+TS e um backend feito em Python+FastAPI.
 
-Este projeto é uma aplicação full-stack construída com um frontend em React e um backend em Python FastAPI. Ele fornece uma plataforma para gerenciar projetos e tarefas colaborativas, permitindo que os usuários criem, atribuam e acompanhem o progresso dos casos.
 
 ## Tecnologias Usadas
 
