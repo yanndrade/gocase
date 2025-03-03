@@ -1,0 +1,55 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "alembic>=1.14.1",
+    "fastapi[standard]>=0.115.8",
+    "langchain>=0.3.19",
+    "langchain-google-genai>=2.0.10",
+    "pandas>=2.2.3",
+    "pwdlib[argon2]>=0.2.1",
+    "pydantic>=2.10.6",
+    "pydantic-settings>=2.7.1",
+    "pyjwt>=2.10.1",
+    "pyyaml>=6.0.2",
+    "sqlalchemy>=2.0.38",
+    "types-pyyaml>=6.0.12.20241230",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.3.4", "pytest-cov>=6.0.0", "ruff>=0.9.6", "taskipy>=1.14.1"]
+
+# <Ruff configuration>
+[tool.ruff]
+line-length = 79
+extend-exclude = ["migrations"]
+
+[tool.ruff.lint]
+preview = true
+select = ["I", "E", "W", "F", "PL", "PT"]
+
+[tool.ruff.format]
+preview = true
+quote-style = "single"
+# </Ruff configuration>
+
+# <Pytest configuration>
+[tool.pytest.ini_options]
+pythonpath = "."
+addopts = '-p no:warnings'
+# </Pytest configuration>
+
+# <Taskipy configuration>
+[tool.taskipy.tasks]
+run = "fastapi dev src/app.py"
+
+pre_test = 'task lint'
+test = "pytest --cov=src -vv"
+post_test = 'coverage html'
+
+lint = "ruff check . && ruff check . --diff"
+format = "ruff check . --fix && ruff format ."
+# </Taskipy configuration>
