@@ -39,3 +39,7 @@ Consulte os arquivos README individuais nos diretórios `frontend` e `backend` p
 - [Backend README](./backend/README.md)
 
 ## Exemplos
+
+### Criar conta para o colaborador:
+
+![Criar conta para o colaborador](./gifs/criarcolab.gif)
