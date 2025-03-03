@@ -66,7 +66,7 @@ Este é o projeto frontend do GoCase, uma aplicação desenvolvida utilizando Re
 
 4. **Acesse a aplicação:**
 
-   Abra o navegador e acesse `http://localhost:3000`.
+   Abra o navegador e acesse `http://localhost:5173`.
 
 ## Scripts Disponíveis
 
