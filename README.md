@@ -2,33 +2,40 @@
 
 Esse é um projeto full-stack feito com um frontend em React+Vite+TS e um backend feito em Python+FastAPI.
 
+## Objetivo
 
-This project is a full-stack application built with a React frontend and a Python FastAPI backend. It provides a platform for managing collaborative projects and tasks, allowing users to create, assign, and track the progress of cases.
+Este projeto tem como objetivo otimizar o processo de avaliação de desempenho na GoCase por meio da automação da elaboração dos Planos de Desenvolvimento Individual (PDI). Para isso, será desenvolvido um agente de Inteligência Artificial capaz de analisar dados essenciais, como feedbacks de gestores, autoavaliações de colaboradores e atas de avaliação de desempenho.
+
+Com base nessa análise, a IA identificará os principais pontos fortes e áreas de melhoria de cada colaborador, sugerindo planos de ação personalizados de forma ágil e eficiente. Essa solução reduzirá o tempo necessário para a criação dos PDIs, permitindo que a empresa gere mais valor no processo de desenvolvimento profissional dos colaboradores.
 
 ## Tecnologias Usadas
 
-*   **Frontend:**
-    *   React
-    *   TypeScript
-    *   Vite
-    *   Tailwind CSS
-*   **Backend:**
-    *   Python
-    *   FastAPI
-    *   SQLAlchemy
-    *   Alembic
-    *   SQLite
+- **Frontend:**
+  - React
+  - TypeScript
+  - Vite
+  - Tailwind CSS
+- **Backend:**
+  - Python
+  - UV
+  - FastAPI
+  - SQLAlchemy
+  - Alembic
+  - SQLite
+  - Langchain
 
 ## Estrutura do Projeto
 
 O projeto está dividido em dois principais diretórios:
-*
-*   `frontend`: Contains the React frontend application.
-*   `backend`: Contains the FastAPI backend application.
 
-## Getting Started
+- `frontend`: Contém a aplicação frontend em React.
+- `backend`: Contém a aplicação backend em FastAPI.
 
-Refer to the individual README files in the `frontend` and `backend` directories for detailed instructions on how to set up and run each part of the application.
+## Começando
 
-*   [Frontend README](./frontend/README.md)
-*   [Backend README](./backend/README.md*)
+Consulte os arquivos README individuais nos diretórios `frontend` e `backend` para obter instruções detalhadas sobre como configurar e executar cada parte da aplicação.
+
+- [Frontend README](./frontend/README.md)
+- [Backend README](./backend/README.md)
+
+## Exemplos
