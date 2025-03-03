@@ -1,50 +1,75 @@
-# React + TypeScript + Vite
+# Projeto Frontend GoCase
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este é o projeto frontend do GoCase, uma aplicação desenvolvida utilizando React, TypeScript e outras tecnologias modernas para criar uma interface de usuário interativa e responsiva.
 
-Currently, two official plugins are available:
+## Tecnologias Utilizadas
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React**: Biblioteca JavaScript para construção de interfaces de usuário.
+- **TypeScript**: Superset do JavaScript que adiciona tipagem estática ao código.
+- **Vite**: Ferramenta de build rápida e moderna para projetos frontend.
+- **React Router**: Biblioteca para gerenciamento de rotas no React.
+- **Axios**: Cliente HTTP para realizar requisições à API.
+- **Tailwind CSS**: Framework CSS para estilização rápida e eficiente.
+- **React Markdown**: Biblioteca para renderização de markdown no React.
 
-## Expanding the ESLint configuration
+## Boas Práticas
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- **Componentização**: O código é dividido em componentes reutilizáveis para facilitar a manutenção e a escalabilidade.
+- **Context API**: Utilização do Context API para gerenciamento de estado global, como autenticação.
+- **Hooks**: Uso de hooks do React para gerenciar estado e efeitos colaterais.
+- **Tipagem**: Utilização de TypeScript para garantir a tipagem estática e evitar erros comuns de JavaScript.
+- **Responsividade**: Estilização responsiva utilizando Tailwind CSS para garantir uma boa experiência em diferentes dispositivos.
+- **Autenticação**: Implementação de rotas privadas e gerenciamento de autenticação utilizando tokens JWT.
 
-- Configure the top-level `parserOptions` property like this:
+## Estrutura do Projeto
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- `src/`: Contém todo o código fonte do projeto.
+  - `assets/`: Imagens e outros arquivos estáticos.
+  - `components/`: Componentes reutilizáveis.
+  - `context/`: Contextos para gerenciamento de estado global.
+  - `pages/`: Páginas da aplicação.
+  - `routes.tsx`: Configuração das rotas da aplicação.
+  - `index.css`: Estilos globais.
+  - `main.tsx`: Ponto de entrada da aplicação.
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Como Rodar o Projeto
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+### Pré-requisitos
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+- Node.js (versão 14 ou superior)
+- npm ou yarn
+
+### Passos para rodar o projeto
+
+1. **Clone o repositório:**
+
+   ```bash
+   git clone https://github.com/yanndrade/gocase.git
+   cd frontend
+   ```
+
+2. **Instale as dependências:**
+
+   ```bash
+   npm install
+   # ou
+   yarn install
+   ```
+
+3. **Inicie o servidor de desenvolvimento:**
+
+   ```bash
+   npm run dev
+   # ou
+   yarn dev
+   ```
+
+4. **Acesse a aplicação:**
+
+   Abra o navegador e acesse `http://localhost:3000`.
+
+## Scripts Disponíveis
+
+- `dev`: Inicia o servidor de desenvolvimento.
+- `build`: Cria uma build otimizada para produção.
+- `serve`: Serve a build de produção localmente.
