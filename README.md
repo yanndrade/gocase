@@ -40,6 +40,8 @@ Consulte os arquivos README individuais nos diretórios `frontend` e `backend` p
 
 ## Exemplos
 
+**OBS:** Os dados preenchidos nos formulários de avaliação foram obtidos da [Base de dados avaliação de desempenho](https://docs.google.com/spreadsheets/d/1Ui-ZiT9S5730MGv3y8O-RZNeNb6kApNupmKo0Ze0kNM/edit?gid=1021057272#gid=1021057272) fornecida nas instruções do projeto.
+
 ### Criar conta para o colaborador:
 
 ![Criar conta para o colaborador](./gifs/criarcolab.gif)
@@ -47,3 +49,25 @@ Consulte os arquivos README individuais nos diretórios `frontend` e `backend` p
 ### Criar conta para o líder:
 
 ![Criar conta para o líder](./gifs/criarlider.gif)
+
+### Fazer autoavaliação:
+
+![autoavaliação](./gifs/autoavaliacao.gif)
+
+### Avaliação do gestor ao colaborador:
+
+![avaliaçãolider](./gifs/avaliacaolider.gif)
+
+### PDI e Insights gerados pelo IA.go:
+
+![iago](./gifs/iago.gif)
+
+## Próximos Passos e Pontos de Melhoria:
+
+- Tornar backend do projeto `async` para melhorar performance
+- Escolher um banco de dados mais eficiente a concorrências em consultas. Ex: PostgreSQL
+- Tratar melhor os erros.
+- Adicionar observabilidade com Logs e Métricas
+-
+-
+-
