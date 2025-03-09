@@ -17,7 +17,7 @@ Com base nessa análise, a IA identificará os principais pontos fortes e áreas
   - Tailwind CSS
 - **Backend:**
   - Python
-  - UV
+  - uv
   - FastAPI
   - SQLAlchemy
   - Alembic
@@ -43,3 +43,7 @@ Consulte os arquivos README individuais nos diretórios `frontend` e `backend` p
 ### Criar conta para o colaborador:
 
 ![Criar conta para o colaborador](./gifs/criarcolab.gif)
+
+### Criar conta para o líder:
+
+![Criar conta para o líder](./gifs/criarlider.gif)

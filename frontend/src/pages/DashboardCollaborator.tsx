@@ -19,40 +19,45 @@ const criteria = [
 ];
 
 function DashboardCollaborator() {
-  //const [user, setUser] = useState(null);
+  // Estados relacionados ao feedback do colaborador
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const [editingFeedback, setEditingFeedback] = useState(false);
   const [creatingFeedback, setCreatingFeedback] = useState(false);
-  const [insight, setInsight] = useState(null);
-  const [loadingInsight, setLoadingInsight] = useState(false);
   const [ratings, setRatings] = useState(Array(10).fill(3)); // Notas padrão 3
   const [leaderRatings, setLeaderRatings] = useState(Array(10).fill(null)); // Notas do líder
   const [leaderFeedbackExists, setLeaderFeedbackExists] = useState(true);
   const [comments, setComments] = useState(Array(10).fill(""));
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
 
+  // Estados relacionados à mensagem da IA
+  const [iaMessage, setIAMessage] = useState(null); // Mensagem vinda da IA (IAMessageStore)
+  const [loadingIAMessage, setLoadingIAMessage] = useState(false);
+
+  const navigate = useNavigate();
   const { user } = useAuth();
 
+  // Ao montar o componente ou quando 'user' muda, buscamos se o colaborador já preencheu feedback.
   useEffect(() => {
     if (user) {
       checkIfFeedbackSubmitted();
     }
   }, [user]);
 
+  // Verifica se o colaborador já fez autoavaliação e se o líder já avaliou
   const checkIfFeedbackSubmitted = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(
+      // Autoavaliação do colaborador
+      const responseAuto = await axios.get(
         "http://localhost:8000/feedback/collaborator/auto",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      if (response.data) {
+      if (responseAuto.data) {
         setFeedbackSubmitted(true);
-        setRatings(response.data.answers.map((a) => a.answer));
-        setComments(response.data.answers.map((a) => a.explanation || ""));
+        setRatings(responseAuto.data.answers.map((a) => a.answer));
+        setComments(responseAuto.data.answers.map((a) => a.explanation || ""));
       }
     } catch (error) {
       console.log(
@@ -61,17 +66,17 @@ function DashboardCollaborator() {
       setFeedbackSubmitted(false);
     }
 
-    // Agora buscamos o feedback do gestor
+    // Feedback do gestor
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(
+      const responseLeader = await axios.get(
         "http://localhost:8000/feedback/collaborator/leader",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      if (response.data) {
-        setLeaderRatings(response.data.answers.map((a) => a.answer));
+      if (responseLeader.data) {
+        setLeaderRatings(responseLeader.data.answers.map((a) => a.answer));
       }
     } catch (error) {
       console.log("Nenhum feedback do líder encontrado.");
@@ -79,20 +84,51 @@ function DashboardCollaborator() {
     }
   };
 
+  // Se estiver criando ou editando feedback, rola a página para cima
   useEffect(() => {
     if (editingFeedback || creatingFeedback) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [editingFeedback, creatingFeedback]);
 
+  // ---------------------------
+  //  Busca de mensagem da IA
+  // ---------------------------
+  // Tenta buscar a mensagem existente no IAMessageStore (endpoint GET /iago/message)
+  // Caso não exista, o servidor vai retornar erro e ficamos sem mensagem armazenada
+  const fetchIAMessage = async () => {
+    setLoadingIAMessage(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get("http://localhost:8000/iago/message", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setIAMessage(response.data.message);
+    } catch (error) {
+      console.log("Nenhuma mensagem IA armazenada ainda.");
+      setIAMessage(null);
+    }
+    setLoadingIAMessage(false);
+  };
+
+  // Se o usuário já submeteu feedback, tentamos buscar automaticamente a mensagem existente.
+  useEffect(() => {
+    if (feedbackSubmitted) {
+      fetchIAMessage();
+    }
+  }, [feedbackSubmitted]);
+
+  // ---------------------------
+  //  Gera (ou regenera) nova mensagem IA
+  // ---------------------------
   const handleGetInsight = async () => {
-    setLoadingInsight(true);
+    setLoadingIAMessage(true);
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get("http://localhost:8000/iago/", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setInsight(response.data.message);
+      setIAMessage(response.data.message);
     } catch (error) {
       console.error(
         "Erro ao buscar insights da IA",
@@ -100,9 +136,56 @@ function DashboardCollaborator() {
       );
       alert("Erro ao obter insights da IA.");
     }
-    setLoadingInsight(false);
+    setLoadingIAMessage(false);
   };
 
+  // ---------------------------
+  //  Deletar mensagem IA (e gerar novamente se quiser)
+  // ---------------------------
+  const deleteAssistantFeedback = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete("http://localhost:8000/iago/", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // remove do estado
+      setIAMessage(null);
+    } catch (error) {
+      console.error("Erro ao deletar a mensagem da IA:", error);
+      alert("Erro ao deletar mensagem da IA.");
+    }
+  };
+
+  // "Gerar novamente" => deleta e em seguida gera uma nova
+  const handleRegenerateIA = async () => {
+    await deleteAssistantFeedback();
+    await handleGetInsight();
+  };
+
+  // ---------------------------
+  //  Feedback de "Legal" ou "Não gostei" para a IA
+  // ---------------------------
+  const handleScore = async (like) => {
+    try {
+      const token = localStorage.getItem("token");
+      // like é boolean, mas a API espera 1 ou 0
+      await axios.put(
+        `http://localhost:8000/iago/score?score=${like ? 1 : 0}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      alert("Feedback sobre a IA enviado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao enviar feedback da IA:", error);
+      alert("Erro ao enviar feedback da IA.");
+    }
+  };
+
+  // ---------------------------
+  //  Lógica de criar/editar feedback
+  // ---------------------------
   const handleRatingChange = (index, value) => {
     const newRatings = [...ratings];
     newRatings[index] = value;
@@ -124,7 +207,7 @@ function DashboardCollaborator() {
         "http://localhost:8000/feedback/collaborator",
         {
           answers: criteria.map((_, index) => ({
-            question_number: index + 1, // Adiciona o número da pergunta (1-10)
+            question_number: index + 1,
             answer: ratings[index],
             explanation: comments[index] || "",
           })),
@@ -153,7 +236,7 @@ function DashboardCollaborator() {
         "http://localhost:8000/feedback/collaborator",
         {
           answers: criteria.map((_, index) => ({
-            question_number: index + 1, // Adiciona o número da pergunta (1-10)
+            question_number: index + 1,
             answer: ratings[index],
             explanation: comments[index] || "",
           })),
@@ -172,6 +255,7 @@ function DashboardCollaborator() {
     setIsSubmitting(false);
   };
 
+  // Renderiza formulário de criação ou edição de autoavaliação
   const renderFeedbackForm = (isCreating) => {
     return (
       <div className="mt-6 bg-white p-4 rounded-md border border-[#0047AB]">
@@ -247,9 +331,7 @@ function DashboardCollaborator() {
   };
 
   return (
-    // Container principal com fundo rosa claro (Light pink)
     <div className="min-h-screen bg-[#EFEF98] p-6 pt-20 flex justify-center overflow-x-hidden">
-      {/* "Cartão" central para agrupar conteúdo - corrigido para largura fixa e overflow controlado */}
       <div className="bg-white p-6 rounded-md shadow-md w-full max-w-4xl overflow-hidden">
         {/* Header com nome do usuário e botão de logout */}
         <div className="flex justify-between items-center mb-4">
@@ -259,7 +341,6 @@ function DashboardCollaborator() {
               {user ? `Olá, ${user.name}!` : "Carregando..."}
             </h1>
           </div>
-
           <LogoutButton />
         </div>
 
@@ -289,32 +370,60 @@ function DashboardCollaborator() {
         {/* Se já enviou feedback e não está editando */}
         {feedbackSubmitted && !editingFeedback && (
           <div>
-            <h2 className="text-xl font-semibold text-[#0047AB] mb-4">
+            <h2 className="text-xl font-semibold text-[#0047AB] mt-6 mb-2">
               Insights do IA.go
             </h2>
 
-            <button
-              onClick={handleGetInsight}
-              className={`w-full px-4 py-2 rounded-md text-white font-semibold transition-all ${
-                loadingInsight
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-[#FF3FAE]"
-              }`}
-              disabled={loadingInsight}
-            >
-              {loadingInsight ? "Processando..." : "Obter Insights do IA.go"}
-            </button>
-
-            {insight && (
+            {/* Se NÃO temos mensagem da IA, mostra botão para gerar.
+                Se JÁ temos, mostra a mensagem + botões de feedback e regenerar. */}
+            {!iaMessage ? (
+              <button
+                onClick={handleGetInsight}
+                className={`w-full px-4 py-2 rounded-md text-white font-semibold transition-all ${
+                  loadingIAMessage
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#FF3FAE]"
+                }`}
+                disabled={loadingIAMessage}
+              >
+                {loadingIAMessage
+                  ? "Processando..."
+                  : "Obter Insights do IA.go"}
+              </button>
+            ) : (
               <div
                 id="insight-section"
                 className="mt-4 p-4 border border-[#0047AB] rounded-md bg-white max-h-64 overflow-y-auto break-words"
               >
                 <h3 className="text-lg font-semibold text-[#0047AB] mb-2">
-                  Insights d IA.go:
+                  Insights do IA.go:
                 </h3>
                 <div className="text-black whitespace-pre-line break-words">
-                  <ReactMarkdown>{insight}</ReactMarkdown>
+                  <ReactMarkdown>{iaMessage}</ReactMarkdown>
+                </div>
+
+                {/* Botões de feedback (Legal / Não gostei) */}
+                <div className="mt-4 flex justify-between">
+                  <button
+                    onClick={() => handleScore(true)}
+                    className="px-4 py-2 rounded-md bg-green-500 text-white font-semibold hover:bg-green-600 transition-all mr-2"
+                  >
+                    Legal
+                  </button>
+                  <button
+                    onClick={() => handleScore(false)}
+                    className="px-4 py-2 rounded-md bg-red-500 text-white font-semibold hover:bg-red-600 transition-all mr-2"
+                  >
+                    Não gostei
+                  </button>
+
+                  {/* Botão para gerar novamente */}
+                  <button
+                    onClick={handleRegenerateIA}
+                    className="px-4 py-2 rounded-md bg-[#FF3FAE] text-white font-semibold hover:bg-pink-600 transition-all"
+                  >
+                    Gerar novamente
+                  </button>
                 </div>
               </div>
             )}
@@ -328,7 +437,6 @@ function DashboardCollaborator() {
               </p>
             )}
 
-            {/* Tabela com scroll horizontal */}
             <div className="overflow-x-auto mt-2">
               <table className="w-full border-collapse border border-[#0047AB]">
                 <thead>

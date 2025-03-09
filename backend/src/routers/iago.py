@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from src.assistant.assistant_config import IAgoAssistant
 from src.database.database import get_session
-from src.database.models import Feedback, FeedbackAnswer, User
+from src.database.models import Feedback, FeedbackAnswer, IAMessageStore, User
 from src.schemas.message import Message
 from src.security import get_current_user
 
@@ -138,5 +138,100 @@ def get_assistant_feedback(
         )
 
     IAgo.get_assistant()
-    IAgo.run_assistant(assistant_input)
-    return {'message': IAgo.run_assistant(assistant_input)}
+    message = IAgo.run_assistant(assistant_input)
+
+    print('Inserting into message store')
+
+    message_store = IAMessageStore(
+        user_id=db_current_user.id,  # type: ignore
+        message=message,  # type: ignore
+        score=0,  # type: ignore
+    )
+    session.add(message_store)
+    session.commit()
+    session.refresh(message_store)
+    return {'message': message_store.message}
+
+
+@router.get('/message', status_code=HTTPStatus.OK, response_model=Message)
+def get_assistant_feedback_message(
+    current_user: T_CurrentUser,
+    session: T_Session,
+):
+    db_current_user = session.scalar(
+        select(User).where((User.email == current_user.email))
+    )
+
+    if not db_current_user:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail='User not found',
+        )
+
+    message_store = session.scalar(
+        select(IAMessageStore).where(
+            (IAMessageStore.user_id == db_current_user.id)
+        )
+    )
+
+    if not message_store:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail='Message not found',
+        )
+
+    return {'message': message_store.message}
+
+
+@router.delete('/', status_code=HTTPStatus.OK, response_model=Message)
+def delete_assistant_feedback(
+    current_user: T_CurrentUser,
+    session: T_Session,
+):
+    db_current_user = session.scalar(
+        select(User).where((User.email == current_user.email))
+    )
+
+    if not db_current_user:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail='User not found',
+        )
+
+    message_store = session.scalar(
+        select(IAMessageStore).where(
+            (IAMessageStore.user_id == db_current_user.id)
+        )
+    )
+
+    if not message_store:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail='Message not found',
+        )
+
+    session.delete(message_store)
+    session.commit()
+    return {'message': 'Deleted successfully'}
+
+
+@router.put('/score', status_code=HTTPStatus.OK, response_model=Message)
+def score_assistant_feedback(
+    user: T_CurrentUser,
+    score: int,
+    session: T_Session,
+):
+    message_store = session.scalar(
+        select(IAMessageStore).where((IAMessageStore.user_id == user.id))
+    )
+
+    if not message_store:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail='Message not found',
+        )
+
+    message_store.score = bool(score)
+    session.commit()
+    session.refresh(message_store)
+    return {'message': 'Scored successfully'}
